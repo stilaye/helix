@@ -1,0 +1,31 @@
+{
+  "metric": "fio_seq_write_mbs",
+  "description": "Sequential write throughput at 1MB block size, QD=8, 4 jobs — Cohesity C3000 NFS target",
+  "unit": "MB/s",
+  "higher_is_better": true,
+  "sla_minimum": 500.0,
+  "regression_threshold_pct": 5.0,
+  "samples": [
+    {"value": 812.3, "timestamp": 1742000000.0, "run_id": "baseline-run-001"},
+    {"value": 798.7, "timestamp": 1742086400.0, "run_id": "baseline-run-002"},
+    {"value": 825.1, "timestamp": 1742172800.0, "run_id": "baseline-run-003"},
+    {"value": 808.4, "timestamp": 1742259200.0, "run_id": "baseline-run-004"},
+    {"value": 815.6, "timestamp": 1742345600.0, "run_id": "baseline-run-005"}
+  ],
+  "statistics": {
+    "mean": 812.02,
+    "stddev": 9.22,
+    "min": 798.7,
+    "max": 825.1,
+    "sample_count": 5
+  },
+  "hardware": "Cohesity C3000, 3-node cluster, 10GbE",
+  "fio_config": {
+    "rw": "write",
+    "bs": "1M",
+    "iodepth": 8,
+    "numjobs": 4,
+    "runtime_secs": 60,
+    "size_gb": 20
+  }
+}

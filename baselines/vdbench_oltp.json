@@ -1,0 +1,41 @@
+{
+  "metric": "vdbench_oltp_iops",
+  "description": "Vdbench OLTP workload IOPS — 70/30 read/write, 4KB, 32 threads",
+  "unit": "IOPS",
+  "higher_is_better": true,
+  "sla_minimum": 30000,
+  "regression_threshold_pct": 5.0,
+  "related_metrics": {
+    "vdbench_oltp_p99_ms": {
+      "description": "P99 response time for OLTP workload",
+      "unit": "ms",
+      "higher_is_better": false,
+      "sla_maximum": 5.0
+    }
+  },
+  "samples": [
+    {"value": 33450.0, "timestamp": 1742000000.0, "run_id": "baseline-run-001"},
+    {"value": 34100.0, "timestamp": 1742086400.0, "run_id": "baseline-run-002"},
+    {"value": 32800.0, "timestamp": 1742172800.0, "run_id": "baseline-run-003"},
+    {"value": 33900.0, "timestamp": 1742259200.0, "run_id": "baseline-run-004"},
+    {"value": 34250.0, "timestamp": 1742345600.0, "run_id": "baseline-run-005"}
+  ],
+  "statistics": {
+    "mean": 33700.0,
+    "stddev": 556.2,
+    "min": 32800.0,
+    "max": 34250.0,
+    "sample_count": 5
+  },
+  "hardware": "Cohesity C3000, 3-node cluster",
+  "vdbench_config": {
+    "workload": "oltp",
+    "block_size": "4k",
+    "read_pct": 70,
+    "write_pct": 30,
+    "threads": 32,
+    "warmup_secs": 30,
+    "runtime_secs": 120,
+    "data_size_gb": 50
+  }
+}

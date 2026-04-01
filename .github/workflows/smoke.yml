@@ -1,0 +1,97 @@
+name: HELIX Smoke Tests
+
+# Run on every pull request and direct push to main/develop
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      cluster_ip:
+        description: "Override cluster IP"
+        required: false
+        type: string
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Smoke Suite (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install HELIX and dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[test]"
+
+      - name: Install Allure CLI
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/allure-framework/allure2/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Run smoke tests
+        env:
+          HELIOS_API_KEY: ${{ secrets.HELIOS_API_KEY }}
+          CLUSTER_IP: ${{ inputs.cluster_ip || vars.LAB_CLUSTER_IP }}
+          CLUSTER_ID: ${{ vars.LAB_CLUSTER_ID }}
+          CLUSTER_NODE_IPS: ${{ vars.LAB_NODE_IPS }}
+          SSH_USER: ${{ vars.SSH_USER || 'cohesity' }}
+          SSH_KEY_PATH: ~/.ssh/helix_ci_key
+          NFS_EXPORT: ${{ vars.NFS_EXPORT || '/cohesity-test' }}
+          SMB_SHARE: ${{ vars.SMB_SHARE || 'test-share' }}
+          SMB_USER: ${{ secrets.SMB_USER }}
+          SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          HELIX_ENV: lab
+        run: |
+          mkdir -p allure-results
+          pytest \
+            -m smoke \
+            --cluster-ip="${CLUSTER_IP}" \
+            --cluster-id="${CLUSTER_ID}" \
+            --env=lab \
+            --tb=short \
+            -ra \
+            --timeout=120 \
+            --alluredir=allure-results \
+            -v \
+            tests/smoke/
+
+      - name: Generate Allure report
+        if: always()
+        run: |
+          allure generate allure-results --clean -o allure-report
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-smoke-py${{ matrix.python-version }}
+          path: allure-report/
+          retention-days: 14
+
+      - name: Upload raw results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-smoke-failure-py${{ matrix.python-version }}
+          path: allure-results/
+          retention-days: 7

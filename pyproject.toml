@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=68", "setuptools-scm"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "helix"
+version = "1.0.0"
+description = "Helios EXtensible Library for Infrastructure eXamination — Cohesity storage test framework"
+requires-python = ">=3.11"
+dependencies = [
+    # Test framework
+    "pytest>=8.0",
+    "pytest-xdist>=3.5",
+    "pytest-timeout>=2.3",
+    "pytest-rerunfailures>=13.0",
+    "allure-pytest>=2.13",
+
+    # Helios HTTP client
+    "requests>=2.31",
+    "httpx>=0.27",
+    "tenacity>=8.2",
+
+    # Data modeling & config
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+
+    # S3 protocol
+    "boto3>=1.34",
+    "botocore>=1.34",
+
+    # SMB protocol
+    "pysmb>=1.2",
+    "impacket>=0.11",
+
+    # SSH / remote execution
+    "paramiko>=3.4",
+    "fabric>=3.2",
+
+    # Utilities
+    "xxhash>=3.4",
+    "PyYAML>=6.0",
+    "click>=8.1",
+    "rich>=13.0",
+    "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest-cov>=5.0",
+    "mypy>=1.9",
+    "ruff>=0.4",
+    "black>=24.0",
+    "types-requests",
+    "types-PyYAML",
+    "types-paramiko",
+    "boto3-stubs[s3]",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["helix*"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

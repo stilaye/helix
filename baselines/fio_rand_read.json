@@ -1,0 +1,31 @@
+{
+  "metric": "fio_rand_read_iops",
+  "description": "Random read IOPS at 4KB block size, QD=32, 4 jobs — Cohesity C3000 NFS target",
+  "unit": "IOPS",
+  "higher_is_better": true,
+  "sla_minimum": 50000,
+  "regression_threshold_pct": 5.0,
+  "samples": [
+    {"value": 54320.0, "timestamp": 1742000000.0, "run_id": "baseline-run-001"},
+    {"value": 55100.0, "timestamp": 1742086400.0, "run_id": "baseline-run-002"},
+    {"value": 53800.0, "timestamp": 1742172800.0, "run_id": "baseline-run-003"},
+    {"value": 56200.0, "timestamp": 1742259200.0, "run_id": "baseline-run-004"},
+    {"value": 54900.0, "timestamp": 1742345600.0, "run_id": "baseline-run-005"}
+  ],
+  "statistics": {
+    "mean": 54864.0,
+    "stddev": 852.6,
+    "min": 53800.0,
+    "max": 56200.0,
+    "sample_count": 5
+  },
+  "hardware": "Cohesity C3000, 3-node cluster, 10GbE",
+  "fio_config": {
+    "rw": "randread",
+    "bs": "4k",
+    "iodepth": 32,
+    "numjobs": 4,
+    "runtime_secs": 60,
+    "size_gb": 10
+  }
+}

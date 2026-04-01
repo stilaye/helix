@@ -1,0 +1,29 @@
+{
+  "metric": "specfs_sow_ops_sec",
+  "description": "SPEC SFS2014 SOW (Software Build/Compile) workload — ops/sec",
+  "unit": "ops/sec",
+  "higher_is_better": true,
+  "regression_threshold_pct": 5.0,
+  "spec_workload": "SFS2014_SOFTWARE",
+  "samples": [
+    {"value": 12450.0, "timestamp": 1742000000.0, "run_id": "baseline-run-001"},
+    {"value": 12800.0, "timestamp": 1742086400.0, "run_id": "baseline-run-002"},
+    {"value": 12300.0, "timestamp": 1742172800.0, "run_id": "baseline-run-003"},
+    {"value": 12650.0, "timestamp": 1742259200.0, "run_id": "baseline-run-004"},
+    {"value": 12550.0, "timestamp": 1742345600.0, "run_id": "baseline-run-005"}
+  ],
+  "statistics": {
+    "mean": 12550.0,
+    "stddev": 181.1,
+    "min": 12300.0,
+    "max": 12800.0,
+    "sample_count": 5
+  },
+  "hardware": "Cohesity C3000, 3-node cluster, NFS v4.1",
+  "spec_config": {
+    "benchmark": "SFS2014",
+    "workload": "SOFTWARE",
+    "load_points": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    "protocol": "NFSv4.1"
+  }
+}
