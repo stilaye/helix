@@ -453,6 +453,95 @@ helix/
 
 ---
 
+## Running the Demo (No Cluster Needed)
+
+For interview demos or local development without a real Cohesity cluster:
+
+```bash
+git clone https://github.com/stilaye/helix.git
+cd helix
+./scripts/run_demo.sh
+```
+
+First run creates a `.venv`, installs all dependencies, then executes 31 tests against mock infrastructure. Subsequent runs skip the venv creation.
+
+```
+31 passed in 0.16s
+
+TestFioPerformance::test_random_read_iops           PASSED   (54,320 IOPS ≥ 50,000 SLA)
+TestFioPerformance::test_sequential_write_throughput PASSED  (820 MB/s ≥ 500 MB/s SLA)
+TestVdbenchPerformance::test_oltp_iops_and_latency  PASSED
+TestProtocolIO::test_write_read_checksum[SMB]       PASSED
+TestProtocolIO::test_write_read_checksum[NFS]       PASSED
+TestProtocolIO::test_write_read_checksum[S3]        PASSED
+... (18 protocol tests × 3 protocols, 8 smoke tests)
+```
+
+Run a subset:
+```bash
+./scripts/run_demo.sh -k test_smoke        # smoke gate only
+./scripts/run_demo.sh -k test_protocols    # protocol I/O only
+./scripts/run_demo.sh -k test_performance  # perf + baseline regression
+```
+
+---
+
+## Switching from Mock to Real Cluster
+
+The demo and real suites share identical test assertions. The only difference is which `conftest.py` provides the fixtures — `tests/demo/conftest.py` uses mock objects; the real suites use live infrastructure.
+
+### Step 1 — Set environment variables
+
+Create a `.env` file (never commit this):
+
+```bash
+export HELIX_CLUSTER_IP=10.20.30.40
+export HELIX_API_KEY=your-helios-api-key
+export HELIX_CLUSTER_ID=abc123
+
+export HELIX_NFS_EXPORT=/mnt/helix-test
+export HELIX_SMB_SHARE=helix-share
+export HELIX_SMB_USER=testuser
+export HELIX_SMB_PASSWORD=secret
+
+export HELIX_S3_BUCKET=helix-test-bucket
+export HELIX_S3_ACCESS_KEY=AKIAXXXXXX
+export HELIX_S3_SECRET_KEY=xxxxxxxxxxxxxxxx
+```
+
+```bash
+source .env
+```
+
+### Step 2 — Run the real suites
+
+```bash
+pytest tests/functional/ -v          # protocol I/O tests
+pytest tests/performance/ -v         # perf + baseline regression
+pytest tests/                        # everything
+```
+
+### Step 3 — Capture performance baselines (first real run)
+
+```bash
+HELIX_UPDATE_BASELINES=true pytest tests/performance/ -v
+```
+
+Subsequent runs compare against those baselines automatically.
+
+### What changes vs what stays the same
+
+| | Mock (demo) | Real cluster |
+|---|---|---|
+| Test files | `tests/demo/test_*.py` | `tests/functional/`, `tests/performance/` |
+| `conftest.py` | `tests/demo/conftest.py` | `tests/functional/conftest.py`, etc. |
+| Test assertions | **identical** | **identical** |
+| `HeliosClient` | `MockHeliosClient` | Real client hitting Helios API |
+| `protocol_client` | In-memory dict | Real SMB/NFS/S3 mount on cluster |
+| `FioRunner` | Pre-computed results | Real `fio` binary on test host |
+
+---
+
 ## Resources
 
 | Resource | URL |
