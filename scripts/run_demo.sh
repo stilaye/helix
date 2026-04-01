@@ -2,7 +2,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # run_demo.sh — interview demo: runs all HELIX tests against mock infrastructure
 #
-# No real Cohesity cluster needed. All tests run locally using mock fixtures.
+# No real Cohesity cluster needed. Creates a virtualenv on first run.
 #
 # Usage:
 #   ./scripts/run_demo.sh
@@ -14,19 +14,30 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+VENV="$REPO_ROOT/.venv"
 
 cd "$REPO_ROOT"
 
-# Ensure the package is importable
-if ! python3 -c "import helix" 2>/dev/null; then
-    echo "Installing helix package..."
-    pip3 install -e ".[test]" --quiet
+# ── Create virtualenv if it doesn't exist ────────────────────────────────────
+if [ ! -d "$VENV" ]; then
+    echo "Creating virtual environment at .venv ..."
+    python3 -m venv "$VENV"
 fi
 
+# ── Activate ─────────────────────────────────────────────────────────────────
+source "$VENV/bin/activate"
+
+# ── Install dependencies ──────────────────────────────────────────────────────
+echo "Installing dependencies..."
+pip install --quiet --upgrade pip
+pip install --quiet -r requirements.txt
+pip install --quiet -e .
+
+echo ""
 echo "======================================================================"
 echo "  HELIX — Demo Test Suite"
 echo "  31 tests: smoke | protocols (SMB/NFS/S3) | performance baselines"
 echo "======================================================================"
 echo ""
 
-python3 -m pytest tests/demo/ -v --tb=short "$@"
+python -m pytest tests/demo/ -v --tb=short "$@"

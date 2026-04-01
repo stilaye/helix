@@ -1,0 +1,12 @@
+# HELIX — Python dependencies
+# Install with: pip install -r requirements.txt
+
+# Core
+pydantic>=2.0
+eval_type_backport>=0.2   # needed for X|Y union syntax on Python 3.9
+requests>=2.31
+tenacity>=8.2
+
+# Test framework
+pytest>=7.0
+pytest-timeout>=2.0

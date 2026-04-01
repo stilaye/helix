@@ -46,3 +46,4 @@ helix_cap_*.json
 *.db
 *.db-shm
 *.db-wal
+.venv/
