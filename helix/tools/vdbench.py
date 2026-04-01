@@ -62,11 +62,12 @@ _WORKLOAD_DEFAULTS: dict[VdbenchWorkload, dict[str, Any]] = {
 
 class VdbenchResult(BaseModel):
     """Parsed vdbench metrics from output CSV."""
-    throughput_ops_sec: float = 0.0
-    throughput_mb_sec: float = 0.0
-    response_time_ms: float = 0.0
-    response_time_ms_p99: float = 0.0
+    iops: float = 0.0               # operations per second
+    throughput_mbs: float = 0.0     # MB/s
+    avg_response_ms: float = 0.0    # average response time in ms
+    p99_response_ms: float = 0.0    # P99 response time in ms
     cpu_pct: float = 0.0
+    workload: str = ""
     samples: list[dict] = []
 
 

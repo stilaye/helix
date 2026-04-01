@@ -30,6 +30,7 @@ class BackupJob(BaseModel):
 
     id: int | None = None
     job_id: int | None = None
+    run_id: str | None = None   # string run identifier for get_backup_run() calls
     status: str = "kUnknown"
     run_type: Literal["kRegular", "kFull", "kLog", "kSystem"] = "kRegular"
     start_time_usecs: int | None = None

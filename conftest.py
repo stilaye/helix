@@ -25,7 +25,7 @@ import pytest
 
 from helix.api.client import HeliosClient
 from helix.api.auth import APIKeyAuth
-from helix.collect.artifacts import ArtifactCollector, pytest_runtest_makereport_hook
+from helix.collect.artifacts import ArtifactCollector
 from helix.collect.stats import StatsCollector
 from helix.ssh.remote import SSHClient
 
@@ -256,5 +256,10 @@ def artifact_collector(
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> None:
     """Collect cluster artifacts automatically when a test fails."""
+    from helix.collect.artifacts import ArtifactCollector as _AC
     outcome = yield
-    pytest_runtest_makereport_hook(item, call, outcome)
+    rep = outcome.get_result()
+    if rep.failed and call.when == "call":
+        collector = item.funcargs.get("artifact_collector")
+        if collector and isinstance(collector, _AC):
+            collector.collect_all()

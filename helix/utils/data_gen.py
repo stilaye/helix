@@ -17,6 +17,7 @@ class TestFile:
     path: Path
     size_bytes: int
     checksum: str
+    relative_path: str = ""
 
 
 @dataclass
@@ -28,6 +29,14 @@ class TestDataSet:
     @property
     def total_bytes(self) -> int:
         return sum(f.size_bytes for f in self.files)
+
+    @property
+    def total_size_bytes(self) -> int:
+        return self.total_bytes
+
+    @property
+    def file_count(self) -> int:
+        return len(self.files)
 
     @property
     def tree_checksum(self) -> str:
@@ -66,7 +75,7 @@ class DataGenerator:
             ("large_10m.dat", 10 * 1024 * 1024),
         ]
         for name, size in specs:
-            tf = DataGenerator._write_file(root / name, size)
+            tf = DataGenerator._write_file(root / name, size, root)
             dataset.files.append(tf)
 
         # Nested directory structure
@@ -75,20 +84,21 @@ class DataGenerator:
             for s in range(3):
                 sub_subdir = subdir / f"sub_{s:02d}"
                 sub_subdir.mkdir(parents=True, exist_ok=True)
-                tf = DataGenerator._write_file(sub_subdir / "data.dat", 4096)
+                tf = DataGenerator._write_file(sub_subdir / "data.dat", 4096, root)
                 dataset.files.append(tf)
 
         return dataset
 
     @staticmethod
-    def _write_file(path: Path, size_bytes: int) -> TestFile:
+    def _write_file(path: Path, size_bytes: int, root: Path | None = None) -> TestFile:
         """Write a file with deterministic content (seed based on filename)."""
         seed = int(hashlib.md5(path.name.encode()).hexdigest(), 16) % (2**32)
         rng = random.Random(seed)
         content = bytes(rng.getrandbits(8) for _ in range(size_bytes))
         path.write_bytes(content)
         checksum = hashlib.sha256(content).hexdigest()
-        return TestFile(path=path, size_bytes=size_bytes, checksum=checksum)
+        relative = str(path.relative_to(root)) if root else path.name
+        return TestFile(path=path, size_bytes=size_bytes, checksum=checksum, relative_path=relative)
 
     @staticmethod
     def create_large_file(path: Path, size_gb: float) -> TestFile:
